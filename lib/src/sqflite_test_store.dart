@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:automated_testing_framework/automated_testing_framework.dart';
@@ -25,7 +26,52 @@ class SqfliteTestStore {
   Future<List<PendingTest>> testReader(BuildContext context) async {
     List<PendingTest> results;
 
-    //var snapshot = await database.query(testCollectionTable);
+    try {
+      results = [];
+
+      await _createTablesIfNotExist();
+
+      int ownerId = await _getOwnerId();
+
+      if (ownerId != null) {
+        var testsList = await database.query(
+          testsTable,
+          where: 'owner_id = $ownerId',
+        );
+
+        testsList.forEach((testRow) {
+          var testData = json.decode(testRow['data']);
+
+          var active = testData['active'];
+          var name = testData['name'];
+          var version = testData['version'];
+
+          var rawSteps = testData['steps'];
+
+          List<TestStep> steps = [];
+          rawSteps.forEach((raw) {
+            var step = TestStep.fromDynamic(
+              raw,
+              ignoreImages: true,
+            );
+            steps.add(step);
+          });
+
+          var test = Test(
+            active: active,
+            name: name,
+            steps: steps,
+            version: version,
+          );
+
+          results.add(PendingTest.memory(test));
+        });
+      }
+    } catch (e) {
+      print(e);
+      //TODO: Log the exception
+    }
+
     return results ?? [];
   }
 
@@ -37,7 +83,7 @@ class SqfliteTestStore {
 
     try {
       await _createTablesIfNotExist();
-      await _storeTest(testsOwner, test);
+      await _storeTest(test);
 
       result = true;
     } catch (e) {
@@ -59,21 +105,14 @@ class SqfliteTestStore {
   }
 
   Future<void> _storeTest(
-    String owner,
     Test test,
   ) async {
-    var testName = test.name;
+    int ownerId = await _getOwnerId();
     var testData = _encodeTest(test);
+    var testName = test.name;
 
-    var ownerQuery = await database.query(
-      ownersTable,
-      where: 'name = \'$testsOwner\'',
-    );
-
-    int ownerId = ownerQuery.isEmpty ? null : ownerQuery[0]['id'];
     await database.transaction(
       _storeTransaction(
-        owner: owner,
         ownerId: ownerId,
         testData: testData,
         testName: testName,
@@ -81,14 +120,22 @@ class SqfliteTestStore {
     );
   }
 
+  Future<int> _getOwnerId() async {
+    var ownerQuery = await database.query(
+      ownersTable,
+      where: 'name = \'$testsOwner\'',
+    );
+
+    return ownerQuery.isEmpty ? null : ownerQuery[0]['id'];
+  }
+
   Function _storeTransaction({
-    @required String owner,
     @required int ownerId,
     @required String testData,
     @required String testName,
   }) {
     return (Transaction txn) async {
-      ownerId ??= await txn.insert(ownersTable, {'name': owner});
+      ownerId ??= await txn.insert(ownersTable, {'name': testsOwner});
 
       var conflicts = await txn.query(
         testsTable,
@@ -134,9 +181,8 @@ class SqfliteTestStore {
               .toList(),
           version: version,
         )
-        .toJson()
-        .toString();
+        .toJson();
 
-    return testData;
+    return json.encode(testData);
   }
 }
