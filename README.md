@@ -1,14 +1,22 @@
 # automated_testing_framework_plugin_sqflite
 
-A new Flutter package project.
+## Table of Contents
 
-## Getting Started
+* [Introduction](#introduction)
+* [Quick Start](#quick-start)
+* [Supported Platforms](#supported-platforms)
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+## Introduction
+
+This plugin extends the capabilities of the [automated_testing_framework](https://github.com/peiffer-innovations/automated_testing_framework) allowing it to read tests from and write tests to the SQLite Database. Also adds the storage for test reports.
+
+
+## Quick Start
+
+Inside the [main.dart]()  of the example folder there is all the needed code to create a SQLite Database, and also to run the default automated tests.
+
+
+## Supported Platforms
+
+This has been tested on Android.

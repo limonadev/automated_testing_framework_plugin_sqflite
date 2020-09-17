@@ -7,7 +7,55 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
 
+/// Test Store for the Automated Testing Framework that can read and write tests
+/// to SQLite Database.
 class SqfliteTestStore {
+  /// Initializes the test store.  This requires the [Database] to be
+  /// assigned and initialized.
+  ///
+  /// The [testsOwner] is optional and is the name of the owner of the tests to
+  /// be tested this time. If omitted, this defaults to 'default'. This also can
+  /// be used as an identifier of a group of tests.
+  ///
+  /// The [testsTable] is optional and is the name of the table within SQLite
+  /// database where the tests themselves are stored. If omitted, this defaults
+  /// to 'Tests'. Regardless of name, the table will have the following columns:
+  ///
+  ///
+  /// * **id** INTEGER PRIMARY KEY,
+  /// * **owner** TEXT
+  ///
+  ///
+  /// The [ownersTable] is optional and is the name of the table within SQLite
+  /// database where the owners are stored. If omitted, this defaults
+  /// to 'Owners'. Regardless of name, the table will have the following columns:
+  ///
+  /// * **id** INTEGER PRIMARY KEY,
+  /// * **name** TEXT
+  /// * **owner_id** INTEGER
+  ///
+  /// The [reportsTable] is optional and is the name of the table within SQLite
+  /// database where the reports are stored. If omitted, this defaults
+  /// to 'Reports'. Regardless of name, the table will have the following columns:
+  ///
+  /// * **id** INTEGER PRIMARY KEY,
+  /// * **owner** TEXT
+  /// * **name** TEXT
+  /// * **version** INTEGER
+  /// * **device_info** TEXT
+  /// * **end_time** INTEGER
+  /// * **error_steps** INTEGER
+  /// * **images** TEXT
+  /// * **inverted_start_time** INTEGER
+  /// * **logs** TEXT
+  /// * **passed_steps** INTEGER
+  /// * **runtime_exception** TEXT
+  /// * **start_time** INTEGER
+  /// * **steps** TEXT
+  /// * **success** INTEGER
+  ///
+  /// It's highly recommended to use and mantain a defined pair of table names
+  /// for [testsTable] and [ownersTable], instead of changing only one of them.
   SqfliteTestStore({
     @required this.database,
     String ownersTable,
@@ -20,12 +68,24 @@ class SqfliteTestStore {
         testsTable = testsTable ?? 'Tests',
         assert(database != null);
 
+  /// The initialized SQLite Database reference that will be used to
+  /// save tests, read tests, or submit test reports.
   final Database database;
+
+  /// Optional name of the owners table where the owners will be stored.
   final String ownersTable;
+
+  /// Optional name of the reports table where the reports will be stored.
   final String reportsTable;
+
+  /// Optional name of the current owner of the tests to be used.
   final String testsOwner;
+
+  /// Optional name of the tests table where the tests will be stored.
   final String testsTable;
 
+  /// Implementation of the [TestReader] functional interface that can read test
+  /// data from SQLite Database.
   Future<List<PendingTest>> testReader(BuildContext context) async {
     List<PendingTest> results;
 
@@ -55,6 +115,8 @@ class SqfliteTestStore {
     return results ?? [];
   }
 
+  /// Implementation of the [TestReport] functional interface that can submit
+  /// test reports to SQLite Database.
   Future<bool> testReporter(TestReport report) async {
     var result = false;
 
@@ -71,6 +133,8 @@ class SqfliteTestStore {
     return result;
   }
 
+  /// Implementation of the [TestWriter] functional interface that can submit
+  /// test data to SQLite Database.
   Future<bool> testWriter(
     BuildContext context,
     Test test,
