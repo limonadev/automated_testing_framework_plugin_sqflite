@@ -163,7 +163,7 @@ class SqfliteTestStore {
   Future<int> _getOwnerId() async {
     var ownerQuery = await database.query(
       ownersTable,
-      where: 'name = \'$testsOwner\'',
+      where: 'owner = \'$testsOwner\'',
     );
 
     return ownerQuery.isEmpty ? null : ownerQuery[0]['id'];
@@ -245,7 +245,7 @@ class SqfliteTestStore {
     @required String testName,
   }) {
     return (Transaction txn) async {
-      ownerId ??= await txn.insert(ownersTable, {'name': testsOwner});
+      ownerId ??= await txn.insert(ownersTable, {'owner': testsOwner});
 
       var conflicts = await txn.query(
         testsTable,
