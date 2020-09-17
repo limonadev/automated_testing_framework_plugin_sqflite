@@ -1,5 +1,7 @@
 import 'package:automated_testing_framework/automated_testing_framework.dart';
+import 'package:automated_testing_framework_example/automated_testing_framework_example.dart';
 import 'package:automated_testing_framework_plugin_sqflite/automated_testing_framework_plugin_sqflite.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 
@@ -7,122 +9,29 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   var databasesPath = await getDatabasesPath();
-  var dbPath = path.join(databasesPath, 'demo.db');
+  var dbPath = path.join(databasesPath, 'final_demo.db');
 
   final Database database = await openDatabase(
     dbPath,
   );
 
   var store = SqfliteTestStore(database: database);
-  runApp(MyApp(store));
-}
 
-class MyApp extends StatefulWidget {
-  MyApp(this.store);
+  var gestures = TestableGestures();
 
-  final SqfliteTestStore store;
-
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
-  TestController _testController;
-
-  Future<void> _onReset() async {
-    while (_navigatorKey.currentState?.canPop() == true) {
-      _navigatorKey.currentState.pop();
-    }
-    _navigatorKey.currentState.pushReplacementNamed('/');
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    _testController = TestController(
-      navigatorKey: _navigatorKey,
-      onReset: _onReset,
-      testReader: widget.store.testReader,
-      testReporter: widget.store.testReporter,
-      testWriter: widget.store.testWriter,
-    );
-
-    _runTests();
-  }
-
-  Future<void> _runTests() async {
-    var tests = await _testController.loadTests(context);
-    await _testController.runPendingTests(tests);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TestRunner(
-      controller: _testController,
-      child: MaterialApp(
-        navigatorKey: _navigatorKey,
-        title: 'Automated Testing Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home: MyHomePage(title: 'Flutter Demo Home Page'),
-      ),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Testable(
-              id: 'text_value',
-              child: Text(
-                '$_counter',
-                style: Theme.of(context).textTheme.headline4,
-              ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: Testable(
-        id: 'fab',
-        child: FloatingActionButton(
-          onPressed: _incrementCounter,
-          tooltip: 'Increment',
-          child: Icon(Icons.add),
-        ),
-      ),
-    );
-  }
+  runApp(App(
+    options: TestExampleOptions(
+      autorun: kProfileMode,
+      enabled: true,
+      gestures: gestures,
+      // testReader: AssetTestStore(
+      //   testAssetIndex:
+      //       'packages/automated_testing_framework_example/assets/all_tests.json',
+      // ).testReader,
+      testReader: store.testReader,
+      testReporter: store.testReporter,
+      testWidgetsEnabled: true,
+      testWriter: store.testWriter,
+    ),
+  ));
 }
