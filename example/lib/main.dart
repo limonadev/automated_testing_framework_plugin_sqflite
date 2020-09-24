@@ -3,13 +3,28 @@ import 'package:automated_testing_framework_example/automated_testing_framework_
 import 'package:automated_testing_framework_plugin_sqflite/automated_testing_framework_plugin_sqflite.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 
 void main() async {
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    // ignore: avoid_print
+    print('${record.level.name}: ${record.time}: ${record.message}');
+    if (record.error != null) {
+      // ignore: avoid_print
+      print('${record.error}');
+    }
+    if (record.stackTrace != null) {
+      // ignore: avoid_print
+      print('${record.stackTrace}');
+    }
+  });
+
   WidgetsFlutterBinding.ensureInitialized();
 
   var databasesPath = await getDatabasesPath();
-  var dbPath = path.join(databasesPath, 'final_demo.db');
+  var dbPath = path.join(databasesPath, 'test_db.db');
 
   final Database database = await openDatabase(
     dbPath,

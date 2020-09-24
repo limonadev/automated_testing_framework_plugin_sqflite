@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:automated_testing_framework/automated_testing_framework.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -59,6 +60,8 @@ class SqfliteTestStore {
         testsTable = testsTable ?? 'Tests',
         assert(database != null);
 
+  static final Logger _logger = Logger('SQLiteTestStore');
+
   /// The initialized SQLite Database reference that will be used to
   /// save tests, read tests, or submit test reports.
   final Database database;
@@ -104,9 +107,8 @@ class SqfliteTestStore {
         var test = _decodeTest(testRow);
         results.add(PendingTest.memory(test));
       });
-    } catch (e) {
-      print(e);
-      //TODO: Log the exception
+    } catch (e, stack) {
+      _logger.severe('Error loading tests', e, stack);
     }
 
     return results ?? [];
@@ -122,9 +124,8 @@ class SqfliteTestStore {
       await _storeReport(report);
 
       result = true;
-    } catch (e) {
-      print(e);
-      //TODO: Log the exception
+    } catch (e, stack) {
+      _logger.severe('Error writing report', e, stack);
     }
 
     return result;
@@ -143,9 +144,8 @@ class SqfliteTestStore {
       await _storeTest(test);
 
       result = true;
-    } catch (e) {
-      print(e);
-      //TODO: Log the exception
+    } catch (e, stack) {
+      _logger.severe('Error writing test', e, stack);
     }
     return result;
   }
