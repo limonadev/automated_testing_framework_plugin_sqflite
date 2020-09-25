@@ -2,7 +2,7 @@ name: automated_testing_framework_plugin_sqflite
 description: Library to use SQLite Database as a storage mechanism for automated tests and test results.
 homepage: https://github.com/limonadev/automated_testing_framework_plugin_sqflite
 
-version: 1.0.0
+version: 1.0.1
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
