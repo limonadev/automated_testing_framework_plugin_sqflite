@@ -93,7 +93,7 @@ class SqfliteTestStore {
         suiteId = await _getSuiteId(suiteName);
       }
 
-      var condition;
+      String condition;
       if (suiteId != null) {
         condition = 'suite_id = $suiteId';
       }
@@ -189,7 +189,7 @@ class SqfliteTestStore {
 
     var rawSteps = testData['steps'];
 
-    List<TestStep> steps = [];
+    var steps = <TestStep>[];
     rawSteps.forEach((raw) {
       var step = TestStep.fromDynamic(
         raw,
@@ -208,7 +208,7 @@ class SqfliteTestStore {
   }
 
   String _encodeTest(Test test) {
-    int version = (test.version ?? 0) + 1;
+    var version = (test.version ?? 0) + 1;
 
     var testData = test
         .copyWith(
@@ -226,9 +226,9 @@ class SqfliteTestStore {
     String suiteName, {
     Transaction transaction,
   }) async {
-    var suiteQuery;
+    List<Map<String, dynamic>> suiteQuery;
 
-    var condition = 'suite_name = \'$suiteName\'';
+    var condition = "suite_name = '$suiteName'";
     if (transaction != null) {
       suiteQuery = await transaction.query(
         suitesTable,
@@ -331,7 +331,7 @@ class SqfliteTestStore {
 
       var conflicts = await txn.query(
         testsTable,
-        where: 'name = \'$testName\' AND suite_id = $suiteId',
+        where: "name = '$testName' AND suite_id = $suiteId",
       );
 
       if (conflicts.isNotEmpty == true) {

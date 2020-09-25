@@ -26,7 +26,7 @@ void main() async {
   var databasesPath = await getDatabasesPath();
   var dbPath = path.join(databasesPath, 'test_db.db');
 
-  final Database database = await openDatabase(
+  final database = await openDatabase(
     dbPath,
   );
 
