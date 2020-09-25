@@ -1,5 +1,5 @@
 name: example
-description: A new Flutter project.
+description: Example project using the Automated Testing Framework SQLite Plugin.
 
 publish_to: 'none'
 version: 1.0.0+1
@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  automated_testing_framework_example: ^1.0.4
+  automated_testing_framework_example: ^1.0.8
   path: ^1.7.0
   
 
